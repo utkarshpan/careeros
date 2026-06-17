@@ -40,17 +40,35 @@ CareerOS is an all-in-one AI-powered career platform for students. Unlike other 
 - Role-specific questions
 - Real-time scores: Confidence, Clarity, Technical
 
-### 6. 📊 Coding Tracker
+### 6. 🎙️ AI Voice Mock Interview (NEW)
+- **Real-time voice conversation** with AI interviewer
+- **Speech-to-text** using Web Speech API
+- **Dynamic questions** based on your profile (target role + skills)
+- **AI evaluates** your answer immediately:
+  - Technical Accuracy (0-100)
+  - Communication Clarity (0-100)
+  - Confidence Level (0-100)
+- **Follow-up questions** based on your previous answers
+- **Text input fallback** if microphone is not available
+- **Final summary report** with:
+  - Overall score
+  - Top strengths
+  - Areas to improve
+  - Suggested topics to study
+- **Interview history** saved to database
+- **Beautiful chat interface** like ChatGPT/WhatsApp
+
+### 7. 📊 Coding Tracker
 - DSA topic mastery (Arrays, Trees, Graphs, DP)
 - Streak counter & contest history
 - Daily challenges
 
-### 7. 💼 LinkedIn Optimizer
+### 8. 💼 LinkedIn Optimizer
 - AI headline generator
 - About section rewrite
 - Skill suggestions
 
-### 8. 🌐 Portfolio Generator
+### 9. 🌐 Portfolio Generator
 - 3-5 design templates
 - Auto-fill from resume data
 - One-click deploy to Vercel
@@ -66,6 +84,7 @@ CareerOS is an all-in-one AI-powered career platform for students. Unlike other 
 | **Database** | PostgreSQL (production) / SQLite (development) |
 | **Authentication** | Clerk |
 | **AI** | Groq (Llama 3.3 70B), Gemini 2.5 Flash |
+| **Voice** | Web Speech API |
 | **Deployment** | Vercel |
 
 ---
@@ -81,6 +100,7 @@ CareerOS is an all-in-one AI-powered career platform for students. Unlike other 
 | Interview Coach | Groq Llama 3.3 70B |
 | LinkedIn Optimizer | Groq Llama 3.3 70B |
 | Portfolio Generator | Groq Llama 3.3 70B |
+| **Voice Mock Interview** | **Groq Llama 3.3 70B** |
 | Coding Tracker | No AI |
 
 ---
@@ -95,7 +115,7 @@ CareerOS is an all-in-one AI-powered career platform for students. Unlike other 
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/careeros.git
+git clone https://github.com/utkarshpan/careeros.git
 cd careeros
 
 # Install dependencies
