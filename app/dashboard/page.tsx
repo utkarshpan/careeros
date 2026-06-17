@@ -12,6 +12,7 @@ import {
   Code2,
   Share2,
   Layout,
+  Mic,
   ArrowRight,
   Sparkles,
 } from "lucide-react";
@@ -80,6 +81,14 @@ const MODULES = [
     status: "active" as const,
     iconName: "Layout",
     href: "/dashboard/portfolio",
+  },
+  {
+    title: "AI Voice Interview",
+    description:
+      "Real adaptive AI voice mock interviews with live scoring, follow-up questions, and detailed performance report.",
+    status: "active" as const,
+    iconName: "Mic",
+    href: "/dashboard/interview-voice",
   },
 ];
 

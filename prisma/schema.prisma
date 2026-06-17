@@ -26,6 +26,7 @@ model User {
   portfolios        Portfolio[]
   atsScans          ATSScan[]
   mentorChats       MentorChat[]
+  voiceInterviews   VoiceInterview[]
 }
 
 model Resume {
@@ -138,4 +139,19 @@ model MentorChat {
   message   String
   sender    String   // "user" or "mentor"
   createdAt DateTime @default(now())
+}
+
+model VoiceInterview {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetRole   String
+  skills       String   @default("[]")       // JSON stringified array
+  questions    String   @default("[]")       // JSON array of {text, type, difficulty}
+  answers      String   @default("[]")       // JSON array of answer strings
+  evaluations  String   @default("[]")       // JSON array of evaluation objects
+  overallScore Int      @default(0)
+  finalReport  String?                       // JSON object with summary
+  durationSecs Int      @default(0)
+  createdAt    DateTime @default(now())
 }

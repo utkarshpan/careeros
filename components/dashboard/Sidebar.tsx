@@ -13,12 +13,14 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Mic,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "AI Voice Interview", href: "/dashboard/interview-voice", icon: Mic },
   { label: "Profile", href: "/profile", icon: User },
   { label: "Settings", href: "/settings", icon: Settings },
 ];

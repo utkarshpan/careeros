@@ -14,6 +14,7 @@ import {
   Code2,
   Share2,
   Layout,
+  Mic,
   HelpCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -28,6 +29,7 @@ const ICON_MAP: Record<string, React.ComponentType<any>> = {
   Code2,
   Share2,
   Layout,
+  Mic,
 };
 
 interface ModuleCardProps {
