@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-export default function AnimatedBackground() {
+function AnimatedBackground() {
   return (
     <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-[#0a0a0f]">
       {/* Background dot grid pattern overlay */}
@@ -65,3 +65,5 @@ export default function AnimatedBackground() {
     </div>
   );
 }
+
+export default React.memo(AnimatedBackground);

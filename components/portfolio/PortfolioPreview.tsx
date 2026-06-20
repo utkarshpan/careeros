@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Download, ExternalLink, RefreshCw, Monitor, Smartphone, Tablet, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,7 +12,7 @@ interface PortfolioPreviewProps {
 
 export default function PortfolioPreview({ html, onRegenerate, isLoading }: PortfolioPreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [previewDevice, setPreviewDevice] = React.useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
 
   const downloadHtml = () => {
     const blob = new Blob([html], { type: "text/html" });
@@ -33,9 +33,9 @@ export default function PortfolioPreview({ html, onRegenerate, isLoading }: Port
 
   // Dynamic width helper for the iframe container
   const getDeviceWidth = () => {
-    if (previewDevice === "mobile") return "max-w-[375px]";
-    if (previewDevice === "tablet") return "max-w-[768px]";
-    return "max-w-full";
+    if (previewDevice === "mobile") return "max-w-[375px] h-[720px] rounded-3xl border-4 border-zinc-800 shadow-xl overflow-hidden my-4";
+    if (previewDevice === "tablet") return "max-w-[768px] h-[750px] border-x border-white/5";
+    return "max-w-full h-[750px] border-x border-white/5";
   };
 
   return (
@@ -65,7 +65,7 @@ export default function PortfolioPreview({ html, onRegenerate, isLoading }: Port
             <button
               key={device.id}
               onClick={() => setPreviewDevice(device.id as any)}
-              className={`p-1.5 rounded-md transition-all ${
+              className={`p-1.5 rounded-md transition-all cursor-pointer ${
                 previewDevice === device.id
                   ? "bg-indigo-500/15 text-indigo-400 border border-indigo-500/20"
                   : "text-muted-foreground hover:text-foreground border border-transparent"
@@ -84,7 +84,7 @@ export default function PortfolioPreview({ html, onRegenerate, isLoading }: Port
             <button
               onClick={onRegenerate}
               disabled={isLoading}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-zinc-900 border border-white/5 rounded-xl text-gray-300 hover:text-white transition-all disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-zinc-900 border border-white/5 rounded-xl text-gray-300 hover:text-white transition-all disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-indigo-400 ${isLoading ? "animate-spin" : ""}`} />
               <span>Regenerate</span>
@@ -93,7 +93,7 @@ export default function PortfolioPreview({ html, onRegenerate, isLoading }: Port
           
           <button
             onClick={openInNewTab}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-zinc-900 border border-white/5 rounded-xl text-gray-300 hover:text-white transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-zinc-900 border border-white/5 rounded-xl text-gray-300 hover:text-white transition-all cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5 text-indigo-400" />
             <span>Open Tab</span>
@@ -101,7 +101,7 @@ export default function PortfolioPreview({ html, onRegenerate, isLoading }: Port
           
           <button
             onClick={downloadHtml}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-gradient-to-r from-indigo-500 to-violet-600 hover:opacity-95 text-white rounded-xl shadow-md transition-all hover:scale-[1.01]"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-gradient-to-r from-indigo-500 to-violet-600 hover:opacity-95 text-white rounded-xl shadow-md transition-all hover:scale-[1.01] cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Download HTML</span>
@@ -110,22 +110,28 @@ export default function PortfolioPreview({ html, onRegenerate, isLoading }: Port
       </div>
 
       {/* iframe Preview Container */}
-      <div className="relative flex justify-center bg-zinc-950/20" style={{ height: "600px" }}>
+      <div 
+        className="relative flex justify-center items-center bg-zinc-950/20 px-4 transition-all duration-300" 
+        style={{ minHeight: "750px" }}
+      >
         {isLoading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950/60 backdrop-blur-sm z-20">
             <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mb-3" />
             <p className="text-sm font-bold text-gray-200">Rebuilding your portfolio...</p>
-            <p className="text-xs text-muted-foreground mt-1">Applying templates and components (10s)</p>
+            <p className="text-xs text-muted-foreground mt-1">Applying templates and components</p>
           </div>
         ) : (
-          <div className={`w-full h-full transition-all duration-300 ${getDeviceWidth()} border-x border-white/5`}>
-            <iframe
-              ref={iframeRef}
-              srcDoc={html}
-              className="w-full h-full border-0 bg-transparent"
-              title="Portfolio Preview"
-              sandbox="allow-same-origin allow-scripts"
-            />
+          <div className={`w-full transition-all duration-300 flex justify-center ${previewDevice === "mobile" ? "" : "h-[750px]"}`}>
+            <div className={`w-full h-full transition-all duration-300 bg-[#030712] ${getDeviceWidth()}`}>
+              <iframe
+                ref={iframeRef}
+                srcDoc={html}
+                className="w-full h-full border-0 bg-transparent"
+                title="Portfolio Preview"
+                sandbox="allow-same-origin allow-scripts"
+                scrolling="yes"
+              />
+            </div>
           </div>
         )}
       </div>

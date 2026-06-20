@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,7 +25,6 @@ import {
   Layout,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect } from "react";
 
 const NAV_GROUPS = [
   {
@@ -56,7 +55,7 @@ const NAV_GROUPS = [
   }
 ];
 
-export default function Sidebar() {
+function Sidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -65,6 +64,18 @@ export default function Sidebar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleToggleMobile = useCallback(() => {
+    setMobileOpen((prev) => !prev);
+  }, []);
+
+  const handleCloseMobile = useCallback(() => {
+    setMobileOpen(false);
+  }, []);
+
+  const handleToggleTheme = useCallback(() => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  }, [theme, setTheme]);
 
   return (
     <>
@@ -76,7 +87,7 @@ export default function Sidebar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 lg:hidden"
-            onClick={() => setMobileOpen(false)}
+            onClick={handleCloseMobile}
           />
         )}
       </AnimatePresence>
@@ -84,8 +95,8 @@ export default function Sidebar() {
       {/* Mobile Toggle Hamburger button */}
       <motion.button
         whileTap={{ scale: 0.9 }}
-        onClick={() => setMobileOpen(!mobileOpen)}
-        className="fixed top-3.5 left-4 z-50 lg:hidden p-2.5 rounded-xl bg-white/[0.03] border border-white/5 shadow-2xl backdrop-blur-md hover:bg-white/[0.08] transition-all"
+        onClick={handleToggleMobile}
+        className="fixed top-3.5 left-4 z-50 lg:hidden p-2.5 rounded-xl bg-white/[0.03] border border-white/5 shadow-2xl backdrop-blur-md hover:bg-white/[0.08] transition-all cursor-pointer"
         aria-label="Toggle navigation"
       >
         {mobileOpen ? (
@@ -132,7 +143,7 @@ export default function Sidebar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setMobileOpen(false)}
+                      onClick={handleCloseMobile}
                       className={`
                         flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold
                         transition-all duration-200 group relative
@@ -175,7 +186,7 @@ export default function Sidebar() {
             <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/[0.02] border border-white/5 text-xs">
               <span className="text-muted-foreground font-bold">Theme</span>
               <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                onClick={handleToggleTheme}
                 className="p-1.5 rounded-lg hover:bg-white/[0.06] text-muted-foreground hover:text-foreground border border-white/5 bg-white/[0.01] transition-all cursor-pointer"
                 aria-label="Toggle theme"
               >
@@ -205,3 +216,5 @@ export default function Sidebar() {
     </>
   );
 }
+
+export default React.memo(Sidebar);

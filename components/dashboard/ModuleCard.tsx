@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -42,7 +42,7 @@ interface ModuleCardProps {
   index?: number;
 }
 
-export default function ModuleCard({
+function ModuleCard({
   title,
   description,
   iconName,
@@ -54,13 +54,13 @@ export default function ModuleCard({
   const isActive = status === "active";
   const Icon = ICON_MAP[iconName] || HelpCircle;
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (!isActive) {
       toast.info(`${title} is coming soon!`, {
         description: "We're working hard to bring this module to you.",
       });
     }
-  };
+  }, [isActive, title]);
 
   const cardContent = (
     <motion.div
@@ -148,3 +148,5 @@ export default function ModuleCard({
 
   return cardContent;
 }
+
+export default React.memo(ModuleCard);

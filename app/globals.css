@@ -221,3 +221,46 @@ html {
 .gradient-border-glow:hover::after {
   opacity: 1;
 }
+
+/* Custom contrast, dropdown, and focus helper styles */
+.dropdown-panel {
+  background-color: #12121a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7) !important;
+}
+
+.custom-select-option:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.custom-select-option-active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15)) !important;
+  color: #a5b4fc !important;
+}
+
+/* Premium Focus ring */
+.premium-focus:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Gradient border when selected */
+.gradient-border-active {
+  position: relative;
+}
+.gradient-border-active::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 1; /* fully visible when selected */
+  transition: opacity 0.2s ease;
+}
+

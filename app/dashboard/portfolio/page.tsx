@@ -16,7 +16,7 @@ export default async function PortfolioPage() {
 
   const dbUser = await prisma.user.findUnique({ where: { clerkId: userId } });
 
-  // Fetch most recent resume to pre-populate
+  // Fetch most recent resume to pre-populate form elements
   const latestResume = dbUser
     ? await prisma.resume.findFirst({
         where: { userId: dbUser.id },

@@ -2,11 +2,36 @@ import React from "react";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import ProfileForm from "@/components/profile/ProfileForm";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { UserCircle2 } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";
+import dynamic from "next/dynamic";
+
+// Dynamic import of ProfileForm to improve module loading performance
+const ProfileForm = dynamic(() => import("@/components/profile/ProfileForm"), {
+  loading: () => (
+    <div className="max-w-2xl mx-auto bg-card p-8 rounded-2xl border border-border shadow-sm space-y-6 animate-pulse">
+      <div className="space-y-2">
+        <div className="h-4 w-24 bg-muted rounded" />
+        <div className="h-12 w-full bg-muted rounded-xl" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-4 w-24 bg-muted rounded" />
+        <div className="h-12 w-full bg-muted rounded-xl" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-4 w-16 bg-muted rounded" />
+        <div className="h-12 w-full bg-muted rounded-xl" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-4 w-24 bg-muted rounded" />
+        <div className="h-28 w-full bg-muted rounded-xl" />
+      </div>
+      <div className="h-12 w-full bg-muted rounded-xl mt-4" />
+    </div>
+  ),
+});
 
 export default async function ProfilePage() {
   const { userId } = await auth();

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 
 interface PageTransitionProps {
@@ -12,7 +12,8 @@ export default function PageTransition({
   children,
   staggerChildren = false,
 }: PageTransitionProps) {
-  const containerVariants = {
+  // Memoize container variants to avoid recreation on every render cycle
+  const containerVariants = useMemo(() => ({
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -20,9 +21,10 @@ export default function PageTransition({
         staggerChildren: staggerChildren ? 0.08 : 0,
       },
     },
-  };
+  }), [staggerChildren]);
 
-  const itemVariants = {
+  // Memoize item variants to avoid recreation on every render cycle
+  const itemVariants = useMemo(() => ({
     hidden: { opacity: 0, y: 16 },
     visible: {
       opacity: 1,
@@ -33,7 +35,7 @@ export default function PageTransition({
         damping: 15,
       },
     },
-  };
+  }), []);
 
   if (staggerChildren) {
     return (

@@ -1,17 +1,21 @@
 "use client";
 
+import React, { useEffect, useState, useCallback } from "react";
 import { UserButton } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import { Moon, Sun, Bell, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
 
-export default function DashboardHeader() {
+function DashboardHeader() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleToggleTheme = useCallback(() => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  }, [theme, setTheme]);
 
   return (
     <header className="h-16 border-b border-white/5 bg-zinc-950/40 backdrop-blur-xl sticky top-0 z-30">
@@ -32,8 +36,8 @@ export default function DashboardHeader() {
           {/* Theme Toggle Button */}
           {mounted && (
             <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 text-muted-foreground hover:text-foreground transition-all duration-200"
+              onClick={handleToggleTheme}
+              className="p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 text-muted-foreground hover:text-foreground transition-all duration-200 cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? (
@@ -46,7 +50,7 @@ export default function DashboardHeader() {
 
           {/* Notifications Button */}
           <button
-            className="p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 text-muted-foreground hover:text-foreground transition-all duration-200 relative"
+            className="p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 text-muted-foreground hover:text-foreground transition-all duration-200 relative cursor-pointer"
             aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
@@ -69,3 +73,5 @@ export default function DashboardHeader() {
     </header>
   );
 }
+
+export default React.memo(DashboardHeader);

@@ -34,6 +34,8 @@ export default function PortfolioGeneratorClient({ userResume, userProfile }: Po
     role: userResume?.targetRole || "",
     github: userProfile?.githubUrl || "",
     linkedin: userProfile?.linkedinUrl || "",
+    twitter: "",
+    website: "",
   });
   
   const [activeResume, setActiveResume] = useState(userResume);
@@ -107,8 +109,10 @@ export default function PortfolioGeneratorClient({ userResume, userProfile }: Po
               { key: "role", label: "Target Role", icon: Globe, placeholder: "Full Stack Developer" },
               { key: "github", label: "GitHub URL", icon: GitBranch, placeholder: "https://github.com/username" },
               { key: "linkedin", label: "LinkedIn URL", icon: Link2, placeholder: "https://linkedin.com/in/username" },
+              { key: "twitter", label: "Twitter/X URL", icon: Link2, placeholder: "https://twitter.com/username" },
+              { key: "website", label: "Personal Website URL", icon: Globe, placeholder: "https://mywebsite.com" },
             ].map(field => (
-              <div key={field.key} className={field.key === "role" ? "sm:col-span-2" : ""}>
+              <div key={field.key} className={field.key === "role" || field.key === "website" ? "sm:col-span-2" : ""}>
                 <label className="text-xs font-semibold text-foreground mb-1.5 block flex items-center gap-1.5">
                   <field.icon className="w-3 h-3 text-muted-foreground" /> {field.label}
                 </label>
@@ -117,7 +121,7 @@ export default function PortfolioGeneratorClient({ userResume, userProfile }: Po
                   value={(personalInfo as any)[field.key]}
                   onChange={e => setPersonalInfo(prev => ({ ...prev, [field.key]: e.target.value }))}
                   placeholder={field.placeholder}
-                  className="w-full px-3 py-2.5 border border-border rounded-xl bg-background text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="w-full px-3 py-2.5 border border-border rounded-xl bg-[#0a0a0f] text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                 />
               </div>
             ))}
@@ -138,7 +142,7 @@ export default function PortfolioGeneratorClient({ userResume, userProfile }: Po
           onClick={generatePortfolio}
           disabled={loading || !personalInfo.name}
           variant="gradient"
-          className="w-full py-3 text-sm"
+          className="w-full py-3 text-sm cursor-pointer"
         >
           {loading
             ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating Portfolio...</>
