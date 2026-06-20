@@ -1,13 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateContentFromParts } from "@/lib/ai/gemini";
 import {
-  REWRITE_RESUME_SYSTEM_INSTRUCTION,
   REWRITE_BULLET_PROMPT,
   REWRITE_SUMMARY_PROMPT,
   TAILOR_RESUME_PROMPT,
 } from "@/lib/ai/prompts/resume";
 
 export const maxDuration = 60;
+
+// Custom toned-down, realistic system instructions to fix Issue 3
+const PROFESSIONAL_TONED_DOWN_SYSTEM_INSTRUCTION = `You are an expert professional resume editor.
+Your objective is to polish, refine, and tailor the resume text for a target job role.
+
+CRITICAL INSTRUCTIONS:
+- Tone down any unrealistic exaggeration, overhyped descriptions, or fake-sounding claims.
+- Do NOT fabricate fake percentages, dollar amounts, or metrics. If a metric is provided in the input, keep it, but do not invent new ones.
+- Maintain a balanced, authentic, and clear professional tone.
+- Avoid clickbait-like adjectives or buzzwords (e.g. "disrupted", "revolutionized", "world-class", "unparalleled", "industry-changing").
+- Emphasize solid, realistic engineering/management accomplishments using professional active verbs (e.g. "Designed", "Built", "Optimized", "Coordinate", "Implemented").
+- Return the result in a clean JSON format matching the requested mode structure.
+
+Mode structures:
+For summary rewrite: Return JSON: { "summary": "string" }
+For single bullet rewrite: Return JSON: { "bullet": "string" }
+For full experience rewrite: Return JSON: { "experience": [ { "company": "...", "role": "...", "duration": "...", "bullets": ["..."] } ] }
+
+Do not include markdown tags, code block fences, or any text other than the valid JSON payload.`;
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     const responseText = await generateContentFromParts(
       [prompt],
-      REWRITE_RESUME_SYSTEM_INSTRUCTION,
+      PROFESSIONAL_TONED_DOWN_SYSTEM_INSTRUCTION,
       "application/json"
     );
 

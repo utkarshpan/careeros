@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Activity, ShieldAlert, Sparkles, RefreshCw } from "lucide-react";
+import { Activity, ShieldAlert, Sparkles, RefreshCw, FileText, CheckCircle, Upload } from "lucide-react";
 import ScoreCard from "./ScoreCard";
 import KeywordList from "./KeywordList";
 import FeedbackList from "./FeedbackList";
@@ -18,20 +18,93 @@ interface ScanResponse {
   formattingIssues: string[];
 }
 
-export default function ATSScanner() {
+interface ATSScannerProps {
+  dbResumeText?: string;
+  dbResumeTitle?: string;
+  dbHasResume?: boolean;
+}
+
+export default function ATSScanner({
+  dbResumeText = "",
+  dbResumeTitle = "",
+  dbHasResume = false,
+}: ATSScannerProps) {
   const [jobDescription, setJobDescription] = useState("");
-  const [resumeText, setResumeText] = useState("");
+  const [resumeText, setResumeText] = useState(dbResumeText);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ScanResponse | null>(null);
 
+  // Auto-fill state
+  const [resumeSource, setResumeSource] = useState<"saved" | "manual">(dbHasResume ? "saved" : "manual");
+  const [hasSavedResume, setHasSavedResume] = useState(dbHasResume);
+  const [savedResumeText, setSavedResumeText] = useState(dbResumeText);
+  const [savedResumeTitle, setSavedResumeTitle] = useState(dbResumeTitle);
+  const [loadingLatest, setLoadingLatest] = useState(false);
+
   React.useEffect(() => {
+    // 1. First check if we have a resume text coming directly from builder via localStorage
     const cached = localStorage.getItem("ats_resume_text");
     if (cached) {
       setResumeText(cached);
+      setResumeSource("manual");
       localStorage.removeItem("ats_resume_text");
       toast.success("Resume text loaded from builder!");
+      return;
     }
-  }, []);
+
+    // 2. Otherwise use server-rendered data or fetch if none
+    if (dbHasResume && dbResumeText) {
+      // Already set in initial state
+      setHasSavedResume(true);
+      setSavedResumeText(dbResumeText);
+      setSavedResumeTitle(dbResumeTitle || "Latest Resume");
+      setResumeText(dbResumeText);
+      setResumeSource("saved");
+    } else {
+      const fetchLatestResume = async () => {
+        setLoadingLatest(true);
+        try {
+          const res = await fetch("/api/resume/latest-text");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.hasResume && data.resumeText) {
+              setHasSavedResume(true);
+              setSavedResumeText(data.resumeText);
+              setSavedResumeTitle(data.resumeTitle || "Latest Resume");
+              setResumeText(data.resumeText);
+              setResumeSource("saved");
+              toast.success("Resume auto-filled from your saved resume!");
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching latest resume:", err);
+        } finally {
+          setLoadingLatest(false);
+        }
+      };
+
+      fetchLatestResume();
+    }
+  }, [dbHasResume, dbResumeText, dbResumeTitle]);
+
+  const handleModeChange = (source: "saved" | "manual") => {
+    if (source === "saved") {
+      if (!hasSavedResume) {
+        toast.error("No saved resume found", {
+          description: "Please upload your resume in the Resume Builder first.",
+        });
+        return;
+      }
+      setResumeText(savedResumeText);
+      setResumeSource("saved");
+    } else {
+      setResumeSource("manual");
+      // Optional: Clear if it was exactly the saved text to give a fresh slate
+      if (resumeText === savedResumeText) {
+        setResumeText("");
+      }
+    }
+  };
 
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +118,7 @@ export default function ATSScanner() {
 
     if (!resumeText.trim()) {
       toast.error("Missing Resume Content", {
-        description: "Please paste your resume plain text to begin scanning.",
+        description: "Please paste your resume plain text or use a saved resume.",
       });
       return;
     }
@@ -87,7 +160,11 @@ export default function ATSScanner() {
 
   const handleReset = () => {
     setJobDescription("");
-    setResumeText("");
+    if (resumeSource === "saved" && hasSavedResume) {
+      setResumeText(savedResumeText);
+    } else {
+      setResumeText("");
+    }
     setResult(null);
     toast.info("Inputs cleared");
   };
@@ -107,6 +184,35 @@ export default function ATSScanner() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
+            {/* Mode selection buttons */}
+            <div className="flex bg-secondary/50 p-1 rounded-xl border border-border">
+              <button
+                type="button"
+                onClick={() => handleModeChange("saved")}
+                disabled={loadingLatest}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
+                  resumeSource === "saved"
+                    ? "bg-primary text-primary-foreground shadow"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 disabled:opacity-50"
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Use Saved Resume</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleModeChange("manual")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
+                  resumeSource === "manual"
+                    ? "bg-primary text-primary-foreground shadow"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                }`}
+              >
+                <Activity className="w-3.5 h-3.5" />
+                <span>Paste Manually</span>
+              </button>
+            </div>
+
             <form onSubmit={handleScan} className="space-y-6">
               {/* Job Description Textarea */}
               <div className="space-y-2">
@@ -124,9 +230,31 @@ export default function ATSScanner() {
 
               {/* Resume Textarea */}
               <div className="space-y-2">
-                <label className="text-xs font-extrabold text-foreground uppercase tracking-wider">
-                  Resume Text (Plain Text)
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-foreground uppercase tracking-wider">
+                    Resume Text (Plain Text)
+                  </label>
+
+                  {/* Save Status / Upload trigger link */}
+                  {!hasSavedResume && !loadingLatest && (
+                    <a
+                      href="/dashboard/resume"
+                      className="text-[10px] text-primary hover:underline font-bold flex items-center gap-1"
+                    >
+                      <Upload className="w-3 h-3" />
+                      <span>Upload Resume</span>
+                    </a>
+                  )}
+                </div>
+
+                {/* Auto-filled Badge */}
+                {resumeSource === "saved" && hasSavedResume && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[11px] font-semibold animate-fade-in">
+                    <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>📄 Resume auto-filled from your uploaded resume</span>
+                  </div>
+                )}
+
                 <Textarea
                   value={resumeText}
                   onChange={(e) => setResumeText(e.target.value)}

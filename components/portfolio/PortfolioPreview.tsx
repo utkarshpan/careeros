@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Download, ExternalLink, RefreshCw } from "lucide-react";
+import { Download, ExternalLink, RefreshCw, Monitor, Smartphone, Tablet, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface PortfolioPreviewProps {
@@ -12,6 +12,7 @@ interface PortfolioPreviewProps {
 
 export default function PortfolioPreview({ html, onRegenerate, isLoading }: PortfolioPreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [previewDevice, setPreviewDevice] = React.useState<"desktop" | "tablet" | "mobile">("desktop");
 
   const downloadHtml = () => {
     const blob = new Blob([html], { type: "text/html" });
@@ -21,7 +22,7 @@ export default function PortfolioPreview({ html, onRegenerate, isLoading }: Port
     a.download = "my-portfolio.html";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Portfolio downloaded!", { description: "Open the HTML file in any browser" });
+    toast.success("Portfolio downloaded successfully!", { description: "You can host this HTML file anywhere." });
   };
 
   const openInNewTab = () => {
@@ -30,62 +31,102 @@ export default function PortfolioPreview({ html, onRegenerate, isLoading }: Port
     window.open(url, "_blank");
   };
 
+  // Dynamic width helper for the iframe container
+  const getDeviceWidth = () => {
+    if (previewDevice === "mobile") return "max-w-[375px]";
+    if (previewDevice === "tablet") return "max-w-[768px]";
+    return "max-w-full";
+  };
+
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-danger/60" />
-            <div className="w-3 h-3 rounded-full bg-warning/60" />
-            <div className="w-3 h-3 rounded-full bg-success/60" />
+    <div className="glass-card border border-white/5 rounded-2xl overflow-hidden shadow-2xl bg-zinc-950/40">
+      {/* Premium Browser Toolbar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-b border-white/5 bg-zinc-950/50">
+        <div className="flex items-center gap-3">
+          {/* Traffic light circles */}
+          <div className="flex gap-1.5 shrink-0">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
           </div>
-          <div className="bg-background rounded-lg px-3 py-1 text-xs text-muted-foreground border border-border ml-2">
+          
+          <div className="bg-zinc-900 border border-white/5 rounded-lg px-3 py-1 text-[11px] font-semibold text-gray-400">
             my-portfolio.html
           </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Device Switcher */}
+        <div className="flex bg-zinc-900/80 p-0.5 rounded-lg border border-white/5 shrink-0">
+          {[
+            { id: "desktop", icon: Monitor, label: "Desktop" },
+            { id: "tablet", icon: Tablet, label: "Tablet" },
+            { id: "mobile", icon: Smartphone, label: "Mobile" },
+          ].map((device) => (
+            <button
+              key={device.id}
+              onClick={() => setPreviewDevice(device.id as any)}
+              className={`p-1.5 rounded-md transition-all ${
+                previewDevice === device.id
+                  ? "bg-indigo-500/15 text-indigo-400 border border-indigo-500/20"
+                  : "text-muted-foreground hover:text-foreground border border-transparent"
+              }`}
+              title={device.label}
+              type="button"
+            >
+              <device.icon className="w-3.5 h-3.5" />
+            </button>
+          ))}
+        </div>
+
+        {/* Action controls */}
+        <div className="flex items-center gap-2 shrink-0">
           {onRegenerate && (
             <button
               onClick={onRegenerate}
               disabled={isLoading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-muted border border-border rounded-lg text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-zinc-900 border border-white/5 rounded-xl text-gray-300 hover:text-white transition-all disabled:opacity-50"
             >
-              <RefreshCw className={`w-3 h-3 ${isLoading ? "animate-spin" : ""}`} />
-              Regenerate
+              <RefreshCw className={`w-3.5 h-3.5 text-indigo-400 ${isLoading ? "animate-spin" : ""}`} />
+              <span>Regenerate</span>
             </button>
           )}
+          
           <button
             onClick={openInNewTab}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-muted border border-border rounded-lg text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-zinc-900 border border-white/5 rounded-xl text-gray-300 hover:text-white transition-all"
           >
-            <ExternalLink className="w-3 h-3" /> Preview
+            <ExternalLink className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Open Tab</span>
           </button>
+          
           <button
             onClick={downloadHtml}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-gradient-to-r from-indigo-500 to-violet-600 hover:opacity-95 text-white rounded-xl shadow-md transition-all hover:scale-[1.01]"
           >
-            <Download className="w-3 h-3" /> Download
+            <Download className="w-3.5 h-3.5" />
+            <span>Download HTML</span>
           </button>
         </div>
       </div>
 
-      {/* iframe Preview */}
-      <div className="relative" style={{ height: "600px" }}>
+      {/* iframe Preview Container */}
+      <div className="relative flex justify-center bg-zinc-950/20" style={{ height: "600px" }}>
         {isLoading ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/50">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-sm text-muted-foreground font-medium">Generating your portfolio...</p>
-            <p className="text-xs text-muted-foreground mt-1">This may take 15-30 seconds</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950/60 backdrop-blur-sm z-20">
+            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mb-3" />
+            <p className="text-sm font-bold text-gray-200">Rebuilding your portfolio...</p>
+            <p className="text-xs text-muted-foreground mt-1">Applying templates and components (10s)</p>
           </div>
         ) : (
-          <iframe
-            ref={iframeRef}
-            srcDoc={html}
-            className="w-full h-full border-0"
-            title="Portfolio Preview"
-            sandbox="allow-same-origin"
-          />
+          <div className={`w-full h-full transition-all duration-300 ${getDeviceWidth()} border-x border-white/5`}>
+            <iframe
+              ref={iframeRef}
+              srcDoc={html}
+              className="w-full h-full border-0 bg-transparent"
+              title="Portfolio Preview"
+              sandbox="allow-same-origin allow-scripts"
+            />
+          </div>
         )}
       </div>
     </div>

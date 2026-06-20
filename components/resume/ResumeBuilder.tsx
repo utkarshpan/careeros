@@ -180,7 +180,6 @@ export default function ResumeBuilder() {
       }
 
       const parsedData = await res.json();
-      toast.success("Resume parsed successfully!");
 
       // Load parsed data into state
       setFullName(parsedData.fullName || "");
@@ -190,6 +189,12 @@ export default function ResumeBuilder() {
       setSkills(parsedData.skills || []);
       setExperience(parsedData.experience || []);
       setEducation(parsedData.education || []);
+      if (parsedData.id) {
+        setCurrentId(parsedData.id);
+        toast.success("Resume parsed and saved to database!");
+      } else {
+        toast.success("Resume parsed successfully!");
+      }
       setIsEditing(true);
     } catch (error: any) {
       clearInterval(progressInterval);

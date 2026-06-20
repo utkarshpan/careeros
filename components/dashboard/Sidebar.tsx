@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   User,
@@ -14,15 +15,45 @@ import {
   Sun,
   Moon,
   Mic,
+  FileText,
+  ScanSearch,
+  BrainCircuit,
+  Briefcase,
+  Video,
+  Code2,
+  Share2,
+  Layout,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
 
-const NAV_ITEMS = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "AI Voice Interview", href: "/dashboard/interview-voice", icon: Mic },
-  { label: "Profile", href: "/profile", icon: User },
-  { label: "Settings", href: "/settings", icon: Settings },
+const NAV_GROUPS = [
+  {
+    name: "Workspace",
+    items: [
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { label: "AI Resume Builder", href: "/dashboard/resume", icon: FileText },
+      { label: "ATS Scanner", href: "/dashboard/ats", icon: ScanSearch },
+      { label: "Portfolio Generator", href: "/dashboard/portfolio", icon: Layout },
+      { label: "LinkedIn Optimizer", href: "/dashboard/linkedin", icon: Share2 },
+    ]
+  },
+  {
+    name: "Practice & Search",
+    items: [
+      { label: "AI Voice Interview", href: "/dashboard/interview-voice", icon: Mic },
+      { label: "AI Interview Coach", href: "/dashboard/interview", icon: Video },
+      { label: "AI Career Mentor", href: "/dashboard/mentor", icon: BrainCircuit },
+      { label: "Coding Tracker", href: "/dashboard/coding", icon: Code2 },
+      { label: "Internship Finder", href: "/dashboard/internships", icon: Briefcase },
+    ]
+  },
+  {
+    name: "Account",
+    items: [
+      { label: "Profile", href: "/profile", icon: User },
+    ]
+  }
 ];
 
 export default function Sidebar() {
@@ -37,18 +68,24 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
+      {/* Mobile background shade overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 lg:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Mobile toggle button */}
-      <button
+      {/* Mobile Toggle Hamburger button */}
+      <motion.button
+        whileTap={{ scale: 0.9 }}
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="fixed top-4 left-4 z-50 lg:hidden p-2.5 rounded-xl bg-card border border-border shadow-lg hover:bg-muted transition-colors"
+        className="fixed top-3.5 left-4 z-50 lg:hidden p-2.5 rounded-xl bg-white/[0.03] border border-white/5 shadow-2xl backdrop-blur-md hover:bg-white/[0.08] transition-all"
         aria-label="Toggle navigation"
       >
         {mobileOpen ? (
@@ -56,79 +93,90 @@ export default function Sidebar() {
         ) : (
           <Menu className="h-5 w-5 text-foreground" />
         )}
-      </button>
+      </motion.button>
 
-      {/* Sidebar */}
+      {/* Sidebar Panel */}
       <aside
         className={`
-        fixed top-0 left-0 h-full z-50 w-64
-        bg-sidebar-bg border-r border-sidebar-border
-        transition-transform duration-300 ease-in-out
-        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0
-        flex flex-col
-      `}
+          fixed top-0 left-0 h-full z-50 w-64
+          bg-white/[0.02] border-r border-white/5 backdrop-blur-2xl
+          transition-transform duration-300 ease-in-out
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0
+          flex flex-col
+        `}
       >
-        {/* Logo */}
-        <div className="flex items-center gap-3 h-16 px-5 border-b border-sidebar-border shrink-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl gradient-bg text-white shadow-md shadow-primary/20">
+        {/* Title Logo */}
+        <div className="flex items-center gap-3 h-16 px-6 border-b border-white/5 shrink-0">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-500 via-violet-600 to-pink-500 text-white shadow-lg shadow-indigo-500/20">
             <Sparkles className="h-5 w-5" />
           </div>
-          <span className="text-xl font-extrabold tracking-tight gradient-text">
+          <span className="text-lg font-black tracking-tight bg-gradient-to-r from-indigo-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
             CareerOS
           </span>
         </div>
 
-        {/* Navigation Label */}
-        <div className="px-5 pt-6 pb-2">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-            Navigation
-          </span>
+        {/* Scrollable Navigation Groups */}
+        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-none">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.name} className="space-y-1.5">
+              <h4 className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                {group.name}
+              </h4>
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href !== "/dashboard" && pathname.startsWith(item.href));
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`
+                        flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold
+                        transition-all duration-200 group relative
+                        ${
+                          isActive
+                            ? "text-indigo-400"
+                            : "text-muted-foreground hover:text-foreground"
+                        }
+                      `}
+                    >
+                      {/* Active Indicator Sliding Background */}
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeNavBackground"
+                          className="absolute inset-0 bg-indigo-500/10 border-l-2 border-indigo-500 rounded-xl"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+
+                      <item.icon
+                        className={`h-[16px] w-[16px] shrink-0 transition-colors z-10 ${
+                          isActive ? "text-indigo-400" : "group-hover:text-foreground"
+                        }`}
+                      />
+                      <span className="z-10">{item.label}</span>
+                      {isActive && (
+                        <ChevronRight className="ml-auto h-3.5 w-3.5 text-indigo-500/85 z-10" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Nav Items */}
-        <nav className="flex-1 px-3 space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/dashboard" && pathname.startsWith(item.href));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
-                  transition-all duration-200 group
-                  ${
-                    isActive
-                      ? "bg-primary/10 text-primary shadow-sm"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }
-                `}
-              >
-                <item.icon
-                  className={`h-[18px] w-[18px] shrink-0 transition-colors ${
-                    isActive ? "text-primary" : "group-hover:text-foreground"
-                  }`}
-                />
-                <span>{item.label}</span>
-                {isActive && (
-                  <ChevronRight className="ml-auto h-4 w-4 text-primary/60" />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Bottom Card */}
-        <div className="p-4 border-t border-sidebar-border space-y-3">
+        {/* Sidebar Footer Controls */}
+        <div className="p-4 border-t border-white/5 bg-black/20 space-y-3 shrink-0">
           {mounted && (
-            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-muted/30 border border-border/50 text-xs">
-              <span className="text-muted-foreground font-semibold">Theme</span>
+            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/[0.02] border border-white/5 text-xs">
+              <span className="text-muted-foreground font-bold">Theme</span>
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground border border-border bg-card transition-all"
+                className="p-1.5 rounded-lg hover:bg-white/[0.06] text-muted-foreground hover:text-foreground border border-white/5 bg-white/[0.01] transition-all cursor-pointer"
                 aria-label="Toggle theme"
               >
                 {theme === "dark" ? (
@@ -139,17 +187,18 @@ export default function Sidebar() {
               </button>
             </div>
           )}
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-muted/50">
-            <div className="h-8 w-8 rounded-full gradient-bg flex items-center justify-center text-white text-xs font-bold shadow-sm">
+          
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center text-white text-[10px] font-bold shadow-md shadow-indigo-500/10 shrink-0">
               AI
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-foreground truncate">
-                AI Assistant
+              <p className="text-[11px] font-bold text-foreground truncate">
+                AI Copilot
               </p>
-              <p className="text-[11px] text-muted-foreground">Ready to help</p>
+              <p className="text-[9px] text-muted-foreground font-medium">Connected</p>
             </div>
-            <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           </div>
         </div>
       </aside>

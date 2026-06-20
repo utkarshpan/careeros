@@ -6,6 +6,7 @@ import ProfileForm from "@/components/profile/ProfileForm";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { UserCircle2 } from "lucide-react";
+import PageTransition from "@/components/ui/PageTransition";
 
 export default async function ProfilePage() {
   const { userId } = await auth();
@@ -40,22 +41,27 @@ export default async function ProfilePage() {
         <DashboardHeader />
 
         {/* Main Content */}
-        <main className="max-w-4xl mx-auto py-10 px-6">
-          <div className="text-center mb-10 animate-fade-in">
-            <div className="inline-flex items-center justify-center rounded-2xl bg-primary/10 p-4 mb-4 text-primary border border-primary/20 shadow-sm">
-              <UserCircle2 className="h-10 w-10" />
+        <PageTransition>
+          <main className="max-w-4xl mx-auto py-10 px-6 space-y-8">
+            {/* Premium Header */}
+            <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-indigo-950/40 via-purple-950/20 to-zinc-950/60 p-7 text-white shadow-2xl backdrop-blur-md animate-fade-in">
+              <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl" />
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-6">
+                <div className="p-4 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shrink-0">
+                  <UserCircle2 className="w-8 h-8 text-indigo-400" />
+                </div>
+                <div className="flex-1">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">My Professional Profile</h1>
+                  <p className="text-gray-300 text-sm mt-1 leading-relaxed">
+                    Keep your details updated to customize your AI-powered career tools, portfolios, and mock interviews.
+                  </p>
+                </div>
+              </div>
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              My Professional Profile
-            </h1>
-            <p className="mt-3 text-lg text-muted-foreground max-w-xl mx-auto">
-              Keep your profile updated so CareerOS can customize your AI-powered
-              career tools.
-            </p>
-          </div>
 
-          <ProfileForm initialData={initialData} />
-        </main>
+            <ProfileForm initialData={initialData} />
+          </main>
+        </PageTransition>
       </div>
     </div>
   );

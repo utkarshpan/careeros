@@ -2,7 +2,7 @@
 
 import { UserButton } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
-import { Moon, Sun, Bell } from "lucide-react";
+import { Moon, Sun, Bell, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function DashboardHeader() {
@@ -14,53 +14,53 @@ export default function DashboardHeader() {
   }, []);
 
   return (
-    <header className="h-16 border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-30">
+    <header className="h-16 border-b border-white/5 bg-zinc-950/40 backdrop-blur-xl sticky top-0 z-30">
       <div className="flex items-center justify-between h-full px-6 lg:px-8">
-        {/* Left — spacer for mobile hamburger area */}
+        {/* Left spacer for mobile hamburgers */}
         <div className="lg:hidden w-12" />
 
-        {/* Center/Left — Page context */}
-        <div className="hidden lg:flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-success" />
-          <span className="text-sm font-medium text-muted-foreground">
-            Workspace Active
+        {/* Workspace Active Indicator */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <ShieldCheck className="h-4 w-4" />
+          <span className="text-[10px] font-bold uppercase tracking-wider">
+            Premium Workspace Active
           </span>
         </div>
 
-        {/* Right — Actions */}
-        <div className="flex items-center gap-2">
-          {/* Theme toggle */}
+        {/* Right Actions */}
+        <div className="flex items-center gap-3">
+          {/* Theme Toggle Button */}
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2.5 rounded-xl hover:bg-muted transition-all duration-200 text-muted-foreground hover:text-foreground"
+              className="p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 text-muted-foreground hover:text-foreground transition-all duration-200"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? (
-                <Sun className="h-[18px] w-[18px]" />
+                <Sun className="h-4 w-4" />
               ) : (
-                <Moon className="h-[18px] w-[18px]" />
+                <Moon className="h-4 w-4" />
               )}
             </button>
           )}
 
-          {/* Notifications */}
+          {/* Notifications Button */}
           <button
-            className="p-2.5 rounded-xl hover:bg-muted transition-all duration-200 text-muted-foreground hover:text-foreground relative"
+            className="p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 text-muted-foreground hover:text-foreground transition-all duration-200 relative"
             aria-label="Notifications"
           >
-            <Bell className="h-[18px] w-[18px]" />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
+            <Bell className="h-4 w-4" />
+            <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-indigo-500" />
           </button>
 
-          {/* Separator */}
-          <div className="h-8 w-px bg-border mx-1" />
+          {/* Vertical Separator */}
+          <div className="h-6 w-px bg-white/10 mx-1" />
 
-          {/* User button */}
+          {/* Clerk User Button Profile */}
           <UserButton
             appearance={{
               elements: {
-                avatarBox: "h-8 w-8",
+                avatarBox: "h-7 w-7 border border-white/10 rounded-full",
               },
             }}
           />

@@ -148,11 +148,19 @@ export default function InterviewChat({ defaultRole }: InterviewChatProps) {
       recognition.interimResults = true;
       recognition.lang = "en-US";
       recognition.onresult = (event: any) => {
-        let transcript = "";
+        let final = "";
+        let interim = "";
+
         for (let i = 0; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+          const result = event.results[i];
+          const text = result[0].transcript;
+          if (result.isFinal) {
+            final += (final ? " " : "") + text;
+          } else {
+            interim += text;
+          }
         }
-        setAnswer(transcript);
+        setAnswer(final + (interim ? ` ${interim}` : ""));
       };
       recognition.onerror = () => setIsRecording(false);
       recognition.onend = () => setIsRecording(false);

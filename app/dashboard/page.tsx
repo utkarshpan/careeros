@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import ModuleCard from "@/components/dashboard/ModuleCard";
 import Link from "next/link";
+import PageTransition from "@/components/ui/PageTransition";
+import GlassCard from "@/components/ui/GlassCard";
+import AnimatedButton from "@/components/ui/AnimatedButton";
 import {
   FileText,
   ScanSearch,
@@ -15,6 +18,9 @@ import {
   Mic,
   ArrowRight,
   Sparkles,
+  Award,
+  Calendar,
+  Zap,
 } from "lucide-react";
 
 const MODULES = [
@@ -151,120 +157,131 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      {/* ═══ WELCOME BANNER ═══ */}
-      <div className="relative overflow-hidden rounded-2xl gradient-bg p-8 sm:p-10 text-white shadow-lg shadow-primary/10 animate-fade-in">
-        {/* Decorative orbs */}
-        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-white/5 blur-3xl" />
+    <PageTransition staggerChildren={true}>
+      <div className="space-y-10 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        {/* ═══ WELCOME BANNER ═══ */}
+        <GlassCard hoverEffect={false} glowColor="indigo" className="p-8 sm:p-10 text-white relative">
+          <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-indigo-500/10 blur-[80px]" />
+          <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-pink-500/5 blur-[80px]" />
 
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-white/80" />
-              <span className="text-sm font-medium text-white/70 uppercase tracking-wider">
-                Dashboard
-              </span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Welcome back, {displayName}!
-            </h1>
-
-            <p className="text-white/80 text-lg max-w-lg">
-              Ready to accelerate your career? Explore your AI-powered workspace
-              below.
-            </p>
-
-            {targetRole ? (
-              <div className="flex items-center gap-2 pt-1">
-                <span className="text-sm text-white/60">Target Role:</span>
-                <span className="bg-white/15 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-semibold border border-white/10">
-                  {targetRole}
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                <Sparkles className="h-4 w-4" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">
+                  Active Member
                 </span>
               </div>
-            ) : (
-              <Link
-                href="/profile"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white transition-colors pt-1"
-              >
-                Complete your profile to get personalized guidance
-                <ArrowRight className="h-4 w-4" />
+
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+                Welcome back, <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">{displayName}</span>!
+              </h1>
+
+              <p className="text-gray-300 text-base max-w-xl leading-relaxed">
+                Your AI-powered workspace is ready. Tailor resumes, practice voice mocks, track coding milestones, and find internships all in one unified dashboard.
+              </p>
+
+              {targetRole ? (
+                <div className="flex items-center gap-2.5 pt-1">
+                  <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Target Role:</span>
+                  <span className="bg-white/5 border border-white/10 text-indigo-300 px-3 py-1 rounded-lg text-xs font-bold">
+                    {targetRole}
+                  </span>
+                </div>
+              ) : (
+                <Link
+                  href="/profile"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors pt-1"
+                >
+                  Complete profile configuration
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
+            </div>
+
+            {/* Quick Action buttons */}
+            <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0">
+              <Link href="/profile" passHref>
+                <AnimatedButton variant="glass" className="w-full sm:w-auto text-center justify-center">
+                  Configure Profile
+                </AnimatedButton>
               </Link>
-            )}
+              <Link href="/dashboard/resume" passHref>
+                <AnimatedButton variant="primary" className="w-full sm:w-auto text-center justify-center">
+                  Build AI Resume
+                </AnimatedButton>
+              </Link>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* ═══ MODULES SECTION ═══ */}
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-white">
+              Workspace Hub
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Access CareerOS AI instruments optimized to support your professional progression.
+            </p>
           </div>
 
-          {/* Quick actions */}
-          <div className="flex sm:flex-col gap-3">
-            <Link
-              href="/profile"
-              className="bg-white/15 backdrop-blur-sm border border-white/20 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-white/25 transition-all duration-300 text-center"
-            >
-              Edit Profile
-            </Link>
-            <Link
-              href="/dashboard/resume"
-              className="bg-white text-primary px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-white/90 transition-all duration-300 shadow-lg text-center"
-            >
-              Build Resume
-            </Link>
+          {/* Module Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {MODULES.map((module, index) => (
+              <ModuleCard
+                key={module.title}
+                title={module.title}
+                description={module.description}
+                status={module.status}
+                iconName={module.iconName}
+                href={module.href}
+                badge={getModuleBadge(module.title)}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* ═══ QUICK STATS ═══ */}
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-lg font-bold text-white">Performance Analytics</h2>
+            <p className="text-xs text-muted-foreground mt-1">Review aggregated career preparation milestones.</p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { label: "Resumes Created", value: resumesCount.toString(), sublabel: resumesCount > 0 ? "Optimized draft stored" : "None created yet", icon: FileText, glow: "indigo" as const },
+              { label: "Average ATS Score", value: avgAtsScore, sublabel: avgAtsScore !== "—" ? "Targeting 80%+" : "Scan to measure score", icon: Award, glow: "violet" as const },
+              { label: "Mock Interviews Done", value: interviewSessionsCount.toString(), sublabel: interviewSessionsCount > 0 ? "Excellent practice" : "No tests taken yet", icon: Calendar, glow: "pink" as const },
+              { label: "Coding Streak", value: `${maxStreak}d`, sublabel: maxStreak > 0 ? "Consistency active" : "Solve problems to start", icon: Zap, glow: "indigo" as const },
+            ].map((stat) => (
+              <GlassCard
+                key={stat.label}
+                glowColor={stat.glow}
+                className="p-5 flex flex-col justify-between h-full"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    {stat.label}
+                  </span>
+                  <stat.icon className="h-4 w-4 text-indigo-400" />
+                </div>
+                <div className="mt-4">
+                  <p className="text-3xl font-black text-white">
+                    {stat.value}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground mt-1 font-medium">
+                    {stat.sublabel}
+                  </p>
+                </div>
+              </GlassCard>
+            ))}
           </div>
         </div>
       </div>
-
-      {/* ═══ MODULES SECTION ═══ */}
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Your Workspace
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Access AI-driven tools designed to prepare you for every career
-            stage.
-          </p>
-        </div>
-
-        {/* Module Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {MODULES.map((module, index) => (
-            <ModuleCard
-              key={module.title}
-              title={module.title}
-              description={module.description}
-              status={module.status}
-              iconName={module.iconName}
-              href={module.href}
-              badge={getModuleBadge(module.title)}
-              index={index}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* ═══ QUICK STATS ═══ */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-slide-up delay-500">
-        {[
-          { label: "Resumes Created", value: resumesCount.toString(), sublabel: resumesCount > 0 ? "Keep optimizing!" : "Get started!" },
-          { label: "Average ATS Score", value: avgAtsScore, sublabel: avgAtsScore !== "—" ? "Targeting 80%+" : "Scan resume to check" },
-          { label: "Interviews Done", value: interviewSessionsCount.toString(), sublabel: interviewSessionsCount > 0 ? "Great practice!" : "No mock tests yet" },
-          { label: "Coding Streak", value: `${maxStreak}d`, sublabel: maxStreak > 0 ? "Consistency is key!" : "Solve problems" },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-card border border-border rounded-2xl p-5 hover:border-primary/20 transition-colors"
-          >
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {stat.label}
-            </p>
-            <p className="text-2xl font-extrabold text-foreground mt-1">
-              {stat.value}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {stat.sublabel}
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
+    </PageTransition>
   );
 }

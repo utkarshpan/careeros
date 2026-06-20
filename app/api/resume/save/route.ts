@@ -39,6 +39,17 @@ export async function POST(req: NextRequest) {
       targetRole,
     } = await req.json();
 
+    // Normalize experience items to make sure bullets/achievements are consistent
+    let normalizedExperience = experience;
+    if (Array.isArray(experience)) {
+      normalizedExperience = experience.map((exp: any) => ({
+        company: exp.company || "",
+        role: exp.role || "",
+        duration: exp.duration || "",
+        bullets: exp.bullets || exp.achievements || [""],
+      }));
+    }
+
     const dataPayload = {
       title: title || "Untitled Resume",
       fullName,
@@ -46,7 +57,7 @@ export async function POST(req: NextRequest) {
       phone,
       summary,
       skills: skills ? JSON.stringify(skills) : null,
-      experience: experience ? JSON.stringify(experience) : null,
+      experience: normalizedExperience ? JSON.stringify(normalizedExperience) : null,
       education: education ? JSON.stringify(education) : null,
       atsScore: typeof atsScore === "number" ? atsScore : null,
       targetRole,

@@ -299,16 +299,16 @@ export default function VoiceInterview({ targetRole = "Software Engineer", skill
     transcriptAccRef.current = "";
 
     recognition.onresult = (event: any) => {
+      let final = "";
       let interim = "";
-      let final = transcriptAccRef.current;
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          final += (final ? " " : "") + t;
-          transcriptAccRef.current = final;
+      for (let i = 0; i < event.results.length; ++i) {
+        const result = event.results[i];
+        const text = result[0].transcript;
+        if (result.isFinal) {
+          final += (final ? " " : "") + text;
         } else {
-          interim = t;
+          interim += text;
         }
       }
       setTranscript(final + (interim ? ` ${interim}` : ""));
