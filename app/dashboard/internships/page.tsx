@@ -1,7 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import InternshipFinder from "@/components/internships/InternshipFinder";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const InternshipFinder = dynamic(() => import("@/components/internships/InternshipFinder"), {
+  loading: () => <LoadingSkeleton variant="dashboard" />,
+});
 import { Briefcase, Zap, MapPin, DollarSign } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";
 

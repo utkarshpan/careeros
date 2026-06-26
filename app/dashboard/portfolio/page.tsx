@@ -1,7 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import PortfolioGeneratorClient from "@/components/portfolio/PortfolioGeneratorClient";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const PortfolioGeneratorClient = dynamic(() => import("@/components/portfolio/PortfolioGeneratorClient"), {
+  loading: () => <LoadingSkeleton variant="dashboard" />,
+});
 import { Layout, Sparkles, Download, Globe } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";
 

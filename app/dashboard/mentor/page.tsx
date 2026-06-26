@@ -1,7 +1,12 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import MentorChat from "@/components/mentor/MentorChat";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const MentorChat = dynamic(() => import("@/components/mentor/MentorChat"), {
+  loading: () => <LoadingSkeleton variant="list" />,
+});
 import { BrainCircuit, Lightbulb, Map, BookOpen } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";
 

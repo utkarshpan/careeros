@@ -12,7 +12,7 @@ interface AnimatedButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
   icon?: React.ReactNode;
 }
 
-export default function AnimatedButton({
+function AnimatedButton({
   children,
   className = "",
   variant = "primary",
@@ -58,3 +58,5 @@ export default function AnimatedButton({
     </motion.button>
   );
 }
+
+export default React.memo(AnimatedButton);

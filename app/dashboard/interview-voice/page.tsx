@@ -1,7 +1,12 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import VoiceChatUI from "@/components/interview/VoiceChatUI";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const VoiceChatUI = dynamic(() => import("@/components/interview/VoiceChatUI"), {
+  loading: () => <LoadingSkeleton variant="card" />,
+});
 import { Mic, Brain, BarChart2, Trophy, Zap } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";
 

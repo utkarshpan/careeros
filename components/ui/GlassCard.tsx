@@ -9,7 +9,7 @@ interface GlassCardProps extends HTMLMotionProps<"div"> {
   glowColor?: "indigo" | "violet" | "pink" | "none";
 }
 
-export default function GlassCard({
+function GlassCard({
   children,
   className = "",
   hoverEffect = true,
@@ -48,3 +48,5 @@ export default function GlassCard({
     </motion.div>
   );
 }
+
+export default React.memo(GlassCard);

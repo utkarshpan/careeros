@@ -1,6 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import CodingTrackerClient from "@/components/coding/CodingTrackerClient";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const CodingTrackerClient = dynamic(() => import("@/components/coding/CodingTrackerClient"), {
+  loading: () => <LoadingSkeleton variant="dashboard" />,
+});
 import { Code2, BookOpen, Target, Zap } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";
 

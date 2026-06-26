@@ -1,7 +1,12 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import ModuleCard from "@/components/dashboard/ModuleCard";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const ModuleCard = dynamic(() => import("@/components/dashboard/ModuleCard"), {
+  loading: () => <LoadingSkeleton variant="card" />,
+});
 import Link from "next/link";
 import PageTransition from "@/components/ui/PageTransition";
 import GlassCard from "@/components/ui/GlassCard";
@@ -21,6 +26,7 @@ import {
   Award,
   Calendar,
   Zap,
+  GitGraph,
 } from "lucide-react";
 
 const MODULES = [
@@ -95,6 +101,14 @@ const MODULES = [
     status: "active" as const,
     iconName: "Mic",
     href: "/dashboard/interview-voice",
+  },
+  {
+    title: "GitHub Deep Analysis",
+    description:
+      "Analyze your GitHub profile for coding activity, language diversity, project quality, and documentation.",
+    status: "active" as const,
+    iconName: "GitGraph",
+    href: "/dashboard/github",
   },
 ];
 

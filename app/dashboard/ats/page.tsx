@@ -1,7 +1,12 @@
 import React from "react";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import ATSScanner from "@/components/ats/ATSScanner";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const ATSScanner = dynamic(() => import("@/components/ats/ATSScanner"), {
+  loading: () => <LoadingSkeleton variant="form" />,
+});
 import { prisma } from "@/lib/db/prisma";
 import { ShieldCheck, Activity } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";

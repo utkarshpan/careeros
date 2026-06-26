@@ -1,7 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import InterviewChat from "@/components/interview/InterviewChat";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const InterviewChat = dynamic(() => import("@/components/interview/InterviewChat"), {
+  loading: () => <LoadingSkeleton variant="list" />,
+});
 import { Video, Mic, BarChart2, Trophy } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";
 

@@ -23,6 +23,7 @@ import {
   Code2,
   Share2,
   Layout,
+  GitGraph,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -35,6 +36,7 @@ const NAV_GROUPS = [
       { label: "ATS Scanner", href: "/dashboard/ats", icon: ScanSearch },
       { label: "Portfolio Generator", href: "/dashboard/portfolio", icon: Layout },
       { label: "LinkedIn Optimizer", href: "/dashboard/linkedin", icon: Share2 },
+      { label: "GitHub Analysis", href: "/dashboard/github", icon: GitGraph },
     ]
   },
   {

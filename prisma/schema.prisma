@@ -28,6 +28,7 @@ model User {
   atsScans          ATSScan[]
   mentorChats       MentorChat[]
   voiceInterviews   VoiceInterview[]
+  githubAnalyses    GitHubAnalysis[]
 }
 
 model Resume {
@@ -155,4 +156,17 @@ model VoiceInterview {
   finalReport  String?                       // JSON object with summary
   durationSecs Int      @default(0)
   createdAt    DateTime @default(now())
+}
+
+model GitHubAnalysis {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  githubUsername String
+  githubToken    String?  
+  analysisData   Json?    
+  overallScore   Int?     
+  analyzedAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

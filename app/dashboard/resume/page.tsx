@@ -2,8 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import FileUpload from "@/components/ui/FileUpload";
-import ResumeEditor from "@/components/resume/ResumeEditor";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const FileUpload = dynamic(() => import("@/components/ui/FileUpload"), {
+  loading: () => <LoadingSkeleton variant="card" />,
+  ssr: false,
+});
+const ResumeEditor = dynamic(() => import("@/components/resume/ResumeEditor"), {
+  loading: () => <LoadingSkeleton variant="form" />,
+  ssr: false,
+});
 import { Loader2, Sparkles, Plus, FileText } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";
 import GlassCard from "@/components/ui/GlassCard";

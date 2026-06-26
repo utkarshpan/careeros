@@ -1,7 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import LinkedInOptimizerClient from "@/components/linkedin/LinkedInOptimizerClient";
+import dynamic from "next/dynamic";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+
+const LinkedInOptimizerClient = dynamic(() => import("@/components/linkedin/LinkedInOptimizerClient"), {
+  loading: () => <LoadingSkeleton variant="dashboard" />,
+});
 import { Share2, Sparkles, Eye, TrendingUp } from "lucide-react";
 import PageTransition from "@/components/ui/PageTransition";
 
