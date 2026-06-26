@@ -3,109 +3,77 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import dynamic from "next/dynamic";
 import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
+import RealStatsCards from "@/components/dashboard/RealStatsCards";
+import Link from "next/link";
+import PageTransition from "@/components/ui/PageTransition";
+import GlassCard from "@/components/ui/GlassCard";
+import { Clock } from "lucide-react";
 
 const ModuleCard = dynamic(() => import("@/components/dashboard/ModuleCard"), {
   loading: () => <LoadingSkeleton variant="card" />,
 });
-import Link from "next/link";
-import PageTransition from "@/components/ui/PageTransition";
-import GlassCard from "@/components/ui/GlassCard";
-import AnimatedButton from "@/components/ui/AnimatedButton";
-import {
-  FileText,
-  ScanSearch,
-  BrainCircuit,
-  Briefcase,
-  Video,
-  Code2,
-  Share2,
-  Layout,
-  Mic,
-  ArrowRight,
-  Sparkles,
-  Award,
-  Calendar,
-  Zap,
-  GitGraph,
-} from "lucide-react";
 
 const MODULES = [
   {
     title: "AI Resume Builder",
-    description:
-      "Build ATS-optimized resumes with AI-powered suggestions and real-time formatting.",
+    description: "Build ATS-optimized resumes with AI-powered suggestions and real-time formatting.",
     status: "active" as const,
     iconName: "FileText",
     href: "/dashboard/resume",
   },
   {
     title: "ATS Scanner",
-    description:
-      "Scan your resume against job descriptions and get instant compatibility scores.",
+    description: "Scan your resume against job descriptions and get instant compatibility scores.",
     status: "active" as const,
     iconName: "ScanSearch",
     href: "/dashboard/ats",
   },
   {
     title: "AI Career Mentor",
-    description:
-      "Get personalized career guidance and roadmap recommendations from AI.",
+    description: "Get personalized career guidance and roadmap recommendations from AI.",
     status: "active" as const,
     iconName: "BrainCircuit",
     href: "/dashboard/mentor",
   },
   {
     title: "Internship Finder",
-    description:
-      "Discover relevant internships matching your skills, location, and interests.",
+    description: "Discover relevant internships matching your skills, location, and interests.",
     status: "active" as const,
     iconName: "Briefcase",
     href: "/dashboard/internships",
   },
   {
     title: "AI Interview Coach",
-    description:
-      "Practice mock interviews with AI and get detailed feedback on your answers.",
+    description: "Practice mock interviews with AI and get detailed feedback on your answers.",
     status: "active" as const,
     iconName: "Video",
     href: "/dashboard/interview",
   },
   {
+    title: "AI Voice Interview",
+    description: "Real adaptive AI voice mock interviews with live scoring, follow-up questions, and detailed performance report.",
+    status: "active" as const,
+    iconName: "Mic",
+    href: "/dashboard/interview-voice",
+  },
+  {
     title: "Coding Tracker",
-    description:
-      "Track your DSA progress across platforms and identify weak areas to improve.",
+    description: "Track your DSA progress across platforms and identify weak areas to improve.",
     status: "active" as const,
     iconName: "Code2",
     href: "/dashboard/coding",
   },
   {
     title: "LinkedIn Optimizer",
-    description:
-      "Optimize your LinkedIn profile for recruiter visibility and personal branding.",
+    description: "Optimize your LinkedIn profile for recruiter visibility and personal branding.",
     status: "active" as const,
     iconName: "Share2",
     href: "/dashboard/linkedin",
   },
   {
-    title: "Portfolio Generator",
-    description:
-      "Generate a stunning portfolio website from your resume data in minutes.",
-    status: "active" as const,
-    iconName: "Layout",
-    href: "/dashboard/portfolio",
-  },
-  {
-    title: "AI Voice Interview",
-    description:
-      "Real adaptive AI voice mock interviews with live scoring, follow-up questions, and detailed performance report.",
-    status: "active" as const,
-    iconName: "Mic",
-    href: "/dashboard/interview-voice",
-  },
-  {
     title: "GitHub Deep Analysis",
-    description:
-      "Analyze your GitHub profile for coding activity, language diversity, project quality, and documentation.",
+    description: "Analyze your GitHub profile for coding activity, language diversity, project quality, and documentation.",
     status: "active" as const,
     iconName: "GitGraph",
     href: "/dashboard/github",
@@ -129,6 +97,7 @@ export default async function DashboardPage() {
   const displayName = dbUser?.name || clerkUser?.firstName || "Student";
   const targetRole = dbUser?.targetRole;
 
+  // Real data calculations
   const resumesCount = dbUser
     ? await db.resume.count({
         where: { userId: dbUser.id },
@@ -141,13 +110,31 @@ export default async function DashboardPage() {
         _avg: { score: true },
       })
     : null;
-  
-  const avgAtsScore = avgAtsAggregate?._avg?.score !== null && avgAtsAggregate?._avg?.score !== undefined
-    ? `${Math.round(avgAtsAggregate._avg.score)}%`
+  const avgAtsScoreNum = avgAtsAggregate?._avg?.score;
+  const avgAtsScore = avgAtsScoreNum !== null && avgAtsScoreNum !== undefined
+    ? `${Math.round(avgAtsScoreNum)}%`
     : "—";
 
   const interviewSessionsCount = dbUser
     ? await db.interviewSession.count({
+        where: { userId: dbUser.id },
+      })
+    : 0;
+
+  const voiceInterviewsCount = dbUser
+    ? await db.voiceInterview.count({
+        where: { userId: dbUser.id },
+      })
+    : 0;
+
+  const mentorChatsCount = dbUser
+    ? await db.mentorChat.count({
+        where: { userId: dbUser.id },
+      })
+    : 0;
+
+  const savedJobsCount = dbUser
+    ? await db.savedJob.count({
         where: { userId: dbUser.id },
       })
     : 0;
@@ -157,144 +144,223 @@ export default async function DashboardPage() {
         where: { userId: dbUser.id },
       })
     : [];
-  
   const maxStreak = codingProgressList.length > 0
     ? Math.max(...codingProgressList.map((c: any) => c.streak))
     : 0;
 
+  const gitHubAnalysisRecord = dbUser
+    ? await db.gitHubAnalysis.findUnique({
+        where: { userId: dbUser.id },
+      })
+    : null;
+  const githubScore = gitHubAnalysisRecord?.overallScore;
+
+  // Get module badge based on real data
   const getModuleBadge = (title: string) => {
     if (title === "AI Resume Builder") return resumesCount > 0 ? `${resumesCount} Resumes` : "Get Started";
     if (title === "ATS Scanner") return avgAtsScore !== "—" ? `Avg: ${avgAtsScore}` : "Start Scanning";
-    if (title === "AI Interview Coach") return interviewSessionsCount > 0 ? `${interviewSessionsCount} Mock Tests` : "Practice Mock";
+    if (title === "AI Career Mentor") return mentorChatsCount > 0 ? `${mentorChatsCount} Chats` : "Start Chatting";
+    if (title === "Internship Finder") return savedJobsCount > 0 ? `${savedJobsCount} Saved Jobs` : "Find Jobs";
+    if (title === "AI Interview Coach") return interviewSessionsCount > 0 ? `${interviewSessionsCount} Sessions` : "Practice Mock";
+    if (title === "AI Voice Interview") return voiceInterviewsCount > 0 ? `${voiceInterviewsCount} Voice Tests` : "Speak with AI";
     if (title === "Coding Tracker") return maxStreak > 0 ? `Streak: ${maxStreak}d` : "Track DSA";
+    if (title === "LinkedIn Optimizer") return dbUser?.linkedinUrl ? "LinkedIn Linked" : "Not Linked";
+    if (title === "GitHub Deep Analysis") return githubScore !== null && githubScore !== undefined ? `Score: ${githubScore}/100` : "Audit Profile";
     return undefined;
   };
+
+  // Compile real activity feed
+  const activities: Array<{
+    type: string;
+    title: string;
+    description: string;
+    timestamp: Date;
+    glow: "indigo" | "violet" | "pink";
+  }> = [];
+
+  if (dbUser) {
+    const [latestResumes, latestAtsScans, latestInterviews, latestVoiceInterviews, latestGitHub] = await Promise.all([
+      db.resume.findMany({
+        where: { userId: dbUser.id },
+        orderBy: { updatedAt: "desc" },
+        take: 3,
+      }),
+      db.aTSScan.findMany({
+        where: { userId: dbUser.id },
+        orderBy: { scannedAt: "desc" },
+        take: 3,
+      }),
+      db.interviewSession.findMany({
+        where: { userId: dbUser.id },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+      }),
+      db.voiceInterview.findMany({
+        where: { userId: dbUser.id },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+      }),
+      db.gitHubAnalysis.findMany({
+        where: { userId: dbUser.id },
+        orderBy: { updatedAt: "desc" },
+        take: 1,
+      }),
+    ]);
+
+    latestResumes.forEach((r: any) => {
+      activities.push({
+        type: "Resume",
+        title: `Modified: ${r.title}`,
+        description: `Updated resume draft`,
+        timestamp: r.updatedAt,
+        glow: "indigo",
+      });
+    });
+
+    latestAtsScans.forEach((a: any) => {
+      activities.push({
+        type: "ATS Scan",
+        title: `ATS Scan Executed`,
+        description: `Compatibility score: ${a.score}%`,
+        timestamp: a.scannedAt,
+        glow: "violet",
+      });
+    });
+
+    latestInterviews.forEach((i: any) => {
+      activities.push({
+        type: "Mock Interview",
+        title: `Mock Interview complete`,
+        description: `Role: ${i.role || "General"}`,
+        timestamp: i.createdAt,
+        glow: "pink",
+      });
+    });
+
+    latestVoiceInterviews.forEach((v: any) => {
+      activities.push({
+        type: "Voice Interview",
+        title: `Voice Interview complete`,
+        description: `Score: ${v.overallScore}% for ${v.targetRole}`,
+        timestamp: v.createdAt,
+        glow: "pink",
+      });
+    });
+
+    latestGitHub.forEach((g: any) => {
+      activities.push({
+        type: "GitHub Analysis",
+        title: `GitHub profile audit`,
+        description: `Overall score: ${g.overallScore}/100`,
+        timestamp: g.updatedAt,
+        glow: "indigo",
+      });
+    });
+
+    activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }
 
   return (
     <PageTransition staggerChildren={true}>
       <div className="space-y-10 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         
-        {/* ═══ WELCOME BANNER ═══ */}
-        <GlassCard hoverEffect={false} glowColor="indigo" className="p-8 sm:p-10 text-white relative">
-          <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-indigo-500/10 blur-[80px]" />
-          <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-pink-500/5 blur-[80px]" />
+        {/* Welcome Section */}
+        <WelcomeBanner displayName={displayName} targetRole={targetRole} />
 
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-                <Sparkles className="h-4 w-4" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">
-                  Active Member
-                </span>
-              </div>
+        {/* Real Stats cards */}
+        <RealStatsCards
+          resumesCount={resumesCount}
+          avgAtsScore={avgAtsScore}
+          interviewSessionsCount={interviewSessionsCount + voiceInterviewsCount}
+          maxStreak={maxStreak}
+        />
 
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
-                Welcome back, <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">{displayName}</span>!
-              </h1>
-
-              <p className="text-gray-300 text-base max-w-xl leading-relaxed">
-                Your AI-powered workspace is ready. Tailor resumes, practice voice mocks, track coding milestones, and find internships all in one unified dashboard.
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Module Cards Grid */}
+          <div className="lg:col-span-2 space-y-6">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-white">
+                Workspace Hub
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                Access CareerOS AI instruments optimized to support your professional progression.
               </p>
+            </div>
 
-              {targetRole ? (
-                <div className="flex items-center gap-2.5 pt-1">
-                  <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Target Role:</span>
-                  <span className="bg-white/5 border border-white/10 text-indigo-300 px-3 py-1 rounded-lg text-xs font-bold">
-                    {targetRole}
-                  </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {MODULES.map((module, index) => (
+                <ModuleCard
+                  key={module.title}
+                  title={module.title}
+                  description={module.description}
+                  status={module.status}
+                  iconName={module.iconName}
+                  href={module.href}
+                  badge={getModuleBadge(module.title)}
+                  index={index}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Activity Feed */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-white">
+                Recent Activity
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                Audit history log of actions completed in CareerOS.
+              </p>
+            </div>
+
+            <GlassCard hoverEffect={false} className="p-6 space-y-6 bg-white/[0.01] h-[550px] overflow-y-auto">
+              {activities.length > 0 ? (
+                <div className="relative border-l border-white/5 pl-4 ml-2 space-y-6">
+                  {activities.slice(0, 7).map((activity, idx) => {
+                    const glowColors = {
+                      indigo: "bg-indigo-500",
+                      violet: "bg-violet-500",
+                      pink: "bg-pink-500",
+                    };
+                    return (
+                      <div key={idx} className="relative group">
+                        {/* Dot indicator */}
+                        <span className={`absolute -left-[21px] top-1.5 h-2 w-2 rounded-full ${glowColors[activity.glow]} group-hover:scale-125 transition-transform`} />
+                        
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>{new Date(activity.timestamp).toLocaleDateString()}</span>
+                            <span>&bull;</span>
+                            <span className="font-bold text-indigo-400">{activity.type}</span>
+                          </div>
+                          <h4 className="text-xs font-bold text-white">
+                            {activity.title}
+                          </h4>
+                          <p className="text-[10px] text-muted-foreground">
+                            {activity.description}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
-                <Link
-                  href="/profile"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors pt-1"
-                >
-                  Complete profile configuration
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
+                <div className="h-full flex flex-col items-center justify-center text-center space-y-2 py-20">
+                  <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <h4 className="text-xs font-bold text-white">No activity yet</h4>
+                  <p className="text-[10px] text-muted-foreground max-w-xs leading-relaxed">
+                    Start optimizing resumes or practicing interviews to see your logs appear here.
+                  </p>
+                </div>
               )}
-            </div>
-
-            {/* Quick Action buttons */}
-            <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0">
-              <Link href="/profile" passHref>
-                <AnimatedButton variant="glass" className="w-full sm:w-auto text-center justify-center">
-                  Configure Profile
-                </AnimatedButton>
-              </Link>
-              <Link href="/dashboard/resume" passHref>
-                <AnimatedButton variant="primary" className="w-full sm:w-auto text-center justify-center">
-                  Build AI Resume
-                </AnimatedButton>
-              </Link>
-            </div>
-          </div>
-        </GlassCard>
-
-        {/* ═══ MODULES SECTION ═══ */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-xl font-bold tracking-tight text-white">
-              Workspace Hub
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              Access CareerOS AI instruments optimized to support your professional progression.
-            </p>
-          </div>
-
-          {/* Module Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MODULES.map((module, index) => (
-              <ModuleCard
-                key={module.title}
-                title={module.title}
-                description={module.description}
-                status={module.status}
-                iconName={module.iconName}
-                href={module.href}
-                badge={getModuleBadge(module.title)}
-                index={index}
-              />
-            ))}
+            </GlassCard>
           </div>
         </div>
 
-        {/* ═══ QUICK STATS ═══ */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-lg font-bold text-white">Performance Analytics</h2>
-            <p className="text-xs text-muted-foreground mt-1">Review aggregated career preparation milestones.</p>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { label: "Resumes Created", value: resumesCount.toString(), sublabel: resumesCount > 0 ? "Optimized draft stored" : "None created yet", icon: FileText, glow: "indigo" as const },
-              { label: "Average ATS Score", value: avgAtsScore, sublabel: avgAtsScore !== "—" ? "Targeting 80%+" : "Scan to measure score", icon: Award, glow: "violet" as const },
-              { label: "Mock Interviews Done", value: interviewSessionsCount.toString(), sublabel: interviewSessionsCount > 0 ? "Excellent practice" : "No tests taken yet", icon: Calendar, glow: "pink" as const },
-              { label: "Coding Streak", value: `${maxStreak}d`, sublabel: maxStreak > 0 ? "Consistency active" : "Solve problems to start", icon: Zap, glow: "indigo" as const },
-            ].map((stat) => (
-              <GlassCard
-                key={stat.label}
-                glowColor={stat.glow}
-                className="p-5 flex flex-col justify-between h-full"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                    {stat.label}
-                  </span>
-                  <stat.icon className="h-4 w-4 text-indigo-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="text-3xl font-black text-white">
-                    {stat.value}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground mt-1 font-medium">
-                    {stat.sublabel}
-                  </p>
-                </div>
-              </GlassCard>
-            ))}
-          </div>
-        </div>
       </div>
     </PageTransition>
   );
